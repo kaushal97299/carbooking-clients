@@ -1,26 +1,57 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+
+/* ===== gradient mesh ===== */
+.mesh-bg {
+  background:
+    radial-gradient(at 20% 30%, #10b98155 0%, transparent 50%),
+    radial-gradient(at 80% 20%, #22d3ee55 0%, transparent 50%),
+    radial-gradient(at 50% 80%, #05966955 0%, transparent 50%);
+  animation: meshMove 14s ease-in-out infinite;
+}
+@keyframes meshMove {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ===== bubbles ===== */
+.bubble {
+  position: absolute;
+  bottom: -150px;
+  background: rgba(16,185,129,0.25);
+  border-radius: 50%;
+  animation: bubbleMove linear infinite;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes bubbleMove {
+  to {
+    transform: translateY(-120vh);
+    opacity: 0;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ===== floating card ===== */
+@keyframes floatCard {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
+.animate-floatCard {
+  animation: floatCard 4s ease-in-out infinite;
+}
+
+/* ===== soft glow ===== */
+.mobile-glow-soft::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 1rem;
+  background: linear-gradient(90deg, #10b98155, #22d3ee55);
+  filter: blur(8px);
+  z-index: -1;
+}
+/* divider smooth */
+input::placeholder {
+  color: rgba(255,255,255,0.45);
+}
+
+
+
