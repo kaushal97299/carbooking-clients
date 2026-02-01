@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -21,15 +21,29 @@ import {
   X,
   HelpCircle,
   LogOut,
+  User,
 } from "lucide-react";
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>(""); // ✅ FIXED (null hata diya)
   const router = useRouter();
+
+  /* ================= GET USER EMAIL ================= */
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const email = localStorage.getItem("userEmail");
+      if (email) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setUserEmail(email);
+      }
+    }
+  }, []);
 
   /* ================= LOGOUT ================= */
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userEmail");
     router.replace("/");
   };
 
@@ -46,6 +60,17 @@ export default function Sidebar() {
           🚗 Car Booking
         </div>
 
+        {/* ===== USER EMAIL ===== */}
+        <div className="px-5 py-3 border-b border-white/10">
+          <p className="text-[10px] uppercase text-gray-400">Logged in as</p>
+          <div className="flex items-center gap-2 mt-1">
+            <User size={14} className="text-emerald-400" />
+            <p className="text-sm text-white truncate">
+              {userEmail || "Loading..."}
+            </p>
+          </div>
+        </div>
+
         <div className="px-5 pt-4 pb-2 text-[10px] uppercase text-gray-400">
           Manage Business
         </div>
@@ -54,13 +79,10 @@ export default function Sidebar() {
         <nav className="px-3 space-y-0.5 text-xs">
           <SidebarLink href="/dashboard" icon={<Home size={14} />} label="Dashboard" />
           <SidebarLink href="/orders" icon={<Package size={14} />} label="Orders" />
-          <SidebarLink href="/returns" icon={<RotateCcw size={14} />} label="Returns" />
+
           <SidebarLink href="/pricing" icon={<IndianRupee size={14} />} label="Pricing" />
-          <SidebarLink href="/barcode" icon={<Barcode size={14} />} label="Barcoded Packaging" />
           <SidebarLink href="/claims" icon={<FileText size={14} />} label="Claims" />
           <SidebarLink href="/inventory" icon={<Layers size={14} />} label="Inventory" />
-          <SidebarLink href="/catalog" icon={<Upload size={14} />} label="Catalog Uploads" />
-          <SidebarLink href="/images" icon={<Image size={14} />} label="Image Bulk Upload" />
           <SidebarLink href="/quality" icon={<ShieldCheck size={14} />} label="Quality" />
           <SidebarLink href="/payments" icon={<CreditCard size={14} />} label="Payments" />
           <SidebarLink href="/warehouse" icon={<Warehouse size={14} />} label="Warehouse" />
@@ -114,16 +136,23 @@ export default function Sidebar() {
               <X onClick={() => setOpen(false)} size={18} />
             </div>
 
+            {/* USER EMAIL (MOBILE) */}
+            <div className="mb-4 px-3 py-2 border border-white/10 rounded-lg">
+              <p className="text-xs text-gray-400">Logged in as</p>
+              <p className="text-sm text-white truncate">
+                {userEmail || "Loading..."}
+              </p>
+            </div>
+
             <nav className="space-y-0.5 text-xs">
               <SidebarLink href="/dashboard" icon={<Home size={14} />} label="Dashboard" />
               <SidebarLink href="/orders" icon={<Package size={14} />} label="Orders" />
-              <SidebarLink href="/returns" icon={<RotateCcw size={14} />} label="Returns" />
+            
               <SidebarLink href="/pricing" icon={<IndianRupee size={14} />} label="Pricing" />
-              <SidebarLink href="/barcode" icon={<Barcode size={14} />} label="Barcoded Packaging" />
+          
               <SidebarLink href="/claims" icon={<FileText size={14} />} label="Claims" />
               <SidebarLink href="/inventory" icon={<Layers size={14} />} label="Inventory" />
-              <SidebarLink href="/catalog" icon={<Upload size={14} />} label="Catalog Uploads" />
-              <SidebarLink href="/images" icon={<Image size={14} />} label="Image Bulk Upload" />
+            
               <SidebarLink href="/quality" icon={<ShieldCheck size={14} />} label="Quality" />
               <SidebarLink href="/payments" icon={<CreditCard size={14} />} label="Payments" />
               <SidebarLink href="/warehouse" icon={<Warehouse size={14} />} label="Warehouse" />

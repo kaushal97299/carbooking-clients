@@ -34,7 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           // ✅ AFTER LOGIN LAYOUT
           <div className="flex min-h-screen">
             <Sidebar />
-            <main className="flex-1 bg-gray-100 p-4 md:p-6 md:ml-64">
+            <main className="flex-1 bg-gray-100  md:ml-50 lg:ml-64">
               {children}
             </main>
           </div>

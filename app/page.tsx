@@ -28,7 +28,7 @@ export default function AuthPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  /* ================= BUBBLES (FIXED) ================= */
+  /* ================= BUBBLES ================= */
   const bubbles = useMemo(
     () =>
       Array.from({ length: 25 }).map((_, i) => ({
@@ -41,10 +41,14 @@ export default function AuthPage() {
     []
   );
 
+  /* ================= SUBMIT ================= */
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      const url = isLogin ? `${API}/api/clintlogin` : `${API}/api/signup`;
+
+      const url = isLogin
+        ? `${API}/api/clintlogin`
+        : `${API}/api/signup`;
 
       const res = await axios.post(url, {
         email,
@@ -54,6 +58,7 @@ export default function AuthPage() {
 
       if (isLogin) {
         localStorage.setItem("token", res.data.token);
+        localStorage.setItem("userEmail", email); // ✅ ADD (FOR SIDEBAR)
         router.push("/sidebar");
       } else {
         alert("Signup successful! Please login.");
@@ -69,8 +74,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#020b0a] text-white
-      flex items-center justify-center px-4">
+    <div className="relative min-h-screen overflow-hidden bg-[#020b0a] text-white flex items-center justify-center px-4">
 
       {/* ===== BACKGROUND ===== */}
       <div className="absolute inset-0 mesh-bg" />
@@ -92,8 +96,7 @@ export default function AuthPage() {
       </div>
 
       {/* ===== CONTENT ===== */}
-      <div className="relative z-10 w-full max-w-6xl
-        flex flex-col md:grid md:grid-cols-2 items-center">
+      <div className="relative z-10 w-full max-w-6xl flex flex-col md:grid md:grid-cols-2 items-center">
 
         {/* LEFT */}
         <motion.div
@@ -140,41 +143,27 @@ export default function AuthPage() {
           animate="show"
           className="flex items-center justify-center w-full px-4 py-10"
         >
-          <div className="relative mobile-glow-soft w-full max-w-sm
-            bg-white/10 backdrop-blur-2xl border border-white/20
-            p-6 md:p-8 rounded-2xl
-            shadow-[0_25px_60px_rgba(0,0,0,0.55)] animate-floatCard">
+          <div className="relative mobile-glow-soft w-full max-w-sm bg-white/10 backdrop-blur-2xl border border-white/20 p-6 md:p-8 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.55)] animate-floatCard">
 
             <h2 className="text-2xl font-bold text-center text-emerald-300 mb-2">
               {isLogin ? "Login" : "Sign Up"}
             </h2>
 
             <p className="text-center text-sm text-gray-300 mb-5">
-              {isLogin
-                ? "Continue to dashboard"
-                : "Create account in seconds"}
+              {isLogin ? "Continue to dashboard" : "Create account in seconds"}
             </p>
 
-            {/* ===== SOCIAL BUTTONS ===== */}
+            {/* SOCIAL */}
             <div className="flex gap-3 mb-4">
-              <button
-                className="flex-1 flex items-center justify-center gap-2
-                bg-white text-black py-2 rounded-lg text-sm font-medium
-                hover:bg-gray-100 transition"
-              >
+              <button className="flex-1 flex items-center justify-center gap-2 bg-white text-black py-2 rounded-lg text-sm font-medium">
                 <FcGoogle size={18} /> Google
               </button>
-
-              <button
-                className="flex-1 flex items-center justify-center gap-2
-                bg-black text-white py-2 rounded-lg text-sm font-medium
-                hover:bg-black/80 transition"
-              >
+              <button className="flex-1 flex items-center justify-center gap-2 bg-black text-white py-2 rounded-lg text-sm font-medium">
                 <Github size={18} /> GitHub
               </button>
             </div>
 
-            {/* ===== DIVIDER ===== */}
+            {/* DIVIDER */}
             <div className="flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-white/20" />
               <span className="text-xs text-gray-400">or continue with email</span>
@@ -186,8 +175,7 @@ export default function AuthPage() {
                 placeholder="Full Name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full mb-3 p-3 bg-white/10 rounded-xl outline-none
-                focus:ring-2 focus:ring-emerald-400/50"
+                className="w-full mb-3 p-3 bg-white/10 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400/50"
               />
             )}
 
@@ -195,8 +183,7 @@ export default function AuthPage() {
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full mb-3 p-3 bg-white/10 rounded-xl outline-none
-              focus:ring-2 focus:ring-emerald-400/50"
+              className="w-full mb-3 p-3 bg-white/10 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400/50"
             />
 
             <input
@@ -204,16 +191,13 @@ export default function AuthPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full mb-4 p-3 bg-white/10 rounded-xl outline-none
-              focus:ring-2 focus:ring-emerald-400/50"
+              className="w-full mb-4 p-3 bg-white/10 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400/50"
             />
 
             <button
               disabled={loading}
               onClick={handleSubmit}
-              className="w-full py-3 rounded-xl font-semibold
-              bg-gradient-to-r from-emerald-500 to-cyan-500
-              shadow-lg shadow-emerald-500/30"
+              className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/30"
             >
               {loading ? "Please wait..." : isLogin ? "Login" : "Create Account"}
             </button>
