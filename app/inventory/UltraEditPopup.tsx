@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Link from "next/link";
-import { Plus, Trash2, Eye } from "lucide-react";
-import EditInventoryPopup from "./EditFeaturesPopup";
+import { Plus, Trash2, Car, Eye, Pencil } from "lucide-react";
+// import { UltraEditPopup } from "./UltraEditPopup";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
@@ -16,9 +16,9 @@ export interface CarItem {
   gear: string;
   fuel: string;
   price: number;
-  about?: string;
-  image?: string;
-  features?: string[];
+  about: string;
+  features: string[];
+  image: string;
 }
 
 export default function InventoryPage() {
@@ -28,10 +28,8 @@ export default function InventoryPage() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  /* ================= FETCH ================= */
   useEffect(() => {
     if (!token) return;
-
     axios
       .get(`${API}/api/inventory/my`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -39,7 +37,6 @@ export default function InventoryPage() {
       .then((res) => setCars(res.data));
   }, [token]);
 
-  /* ================= DELETE ================= */
   const deleteCar = async (id: string) => {
     await axios.delete(`${API}/api/inventory/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -55,12 +52,14 @@ export default function InventoryPage() {
         <div className="flex justify-between items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 py-5 shadow-xl">
           <div>
             <h1 className="text-3xl font-bold text-emerald-300">Inventory</h1>
-            <p className="text-sm text-gray-400">Manage your cars inventory</p>
+            <p className="text-sm text-gray-400">
+              Manage your cars inventory
+            </p>
           </div>
 
           <Link
             href="/inventory/add"
-            className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 px-5 py-2.5 rounded-xl font-semibold shadow-lg"
+            className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-cyan-500 px-5 py-2.5 rounded-xl font-semibold shadow-lg hover:scale-[1.02] transition"
           >
             <Plus size={18} /> Add Car
           </Link>
@@ -72,8 +71,9 @@ export default function InventoryPage() {
         {cars.map((c) => (
           <div
             key={c._id}
-            className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-5 shadow-xl"
+            className="group bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-5 shadow-xl hover:shadow-emerald-500/10 transition relative"
           >
+            {/* IMAGE */}
             {c.image && (
               <img
                 src={`${API}${c.image}`}
@@ -81,6 +81,7 @@ export default function InventoryPage() {
               />
             )}
 
+            {/* TOP */}
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-bold">{c.name}</h3>
@@ -89,31 +90,29 @@ export default function InventoryPage() {
                 </p>
               </div>
 
-              <div className="flex gap-3">
-                <Eye
-                  size={16}
-                  className="text-cyan-300 cursor-pointer"
-                  onClick={() => setViewCar(c)}
-                />
-                <Trash2
-                  size={16}
-                  className="text-red-400 cursor-pointer"
-                  onClick={() => deleteCar(c._id)}
-                />
+              <div className="flex gap-2">
+                <button onClick={() => setViewCar(c)}>
+                  <Eye size={16} className="text-cyan-300 hover:text-cyan-400" />
+                </button>
+                <button onClick={() => deleteCar(c._id)}>
+                  <Trash2 size={16} className="text-red-400 hover:text-red-500" />
+                </button>
               </div>
             </div>
 
+            {/* SPECS */}
             <div className="grid grid-cols-2 gap-3 text-xs text-gray-300 mt-4">
               <div className="bg-white/5 rounded-xl p-2">⚙ {c.gear}</div>
               <div className="bg-white/5 rounded-xl p-2">⛽ {c.fuel}</div>
             </div>
 
-            {c.features && c.features.length > 0 && (
+            {/* FEATURES */}
+            {c.features?.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-3">
                 {c.features.map((f, i) => (
                   <span
                     key={i}
-                    className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300"
+                    className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300"
                   >
                     {f}
                   </span>
@@ -121,6 +120,7 @@ export default function InventoryPage() {
               </div>
             )}
 
+            {/* PRICE */}
             <div className="mt-4 pt-4 border-t border-white/10 flex justify-between">
               <span className="text-emerald-300 font-bold text-lg">
                 ₹{c.price}
@@ -131,12 +131,12 @@ export default function InventoryPage() {
         ))}
       </div>
 
-      {/* POPUP */}
+      {/* ULTRA POPUP */}
       {viewCar && (
-        <EditInventoryPopup
+        <UltraEditPopup
           car={viewCar}
           close={() => setViewCar(null)}
-          onUpdated={(updated) =>
+          updateLocal={(updated: CarItem) =>
             setCars((prev) =>
               prev.map((c) => (c._id === updated._id ? updated : c))
             )
