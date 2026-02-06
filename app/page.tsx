@@ -226,3 +226,4 @@ function Stat({ value, label }: { value: string; label: string }) {
     </div>
   );
 }
+
