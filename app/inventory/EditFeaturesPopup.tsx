@@ -186,7 +186,6 @@ export default function EditInventoryPopup({
     </div>
   );
 }
-
 /* ================= FIELD ================= */
 
 function Editable({
