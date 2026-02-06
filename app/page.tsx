@@ -9,7 +9,10 @@ import { motion } from "framer-motion";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
 
-/* ================= ANIMATION VARIANTS ================= */
+// Strong password regex
+const strongPasswordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,}$/;
+
 const stagger = {
   hidden: {},
   show: { transition: { staggerChildren: 0.15 } },
@@ -21,14 +24,33 @@ const fadeUp = {
 };
 
 export default function AuthPage() {
+
   const [isLogin, setIsLogin] = useState(true);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordStrength, setPasswordStrength] = useState("");
+
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const router = useRouter();
 
+  /* ================= SOCIAL LOGIN ================= */
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${API}/auth/google`;
+  };
+
+  const handleGithubLogin = () => {
+    window.location.href = `${API}/auth/github`;
+  };
+
   /* ================= BUBBLES ================= */
+
   const bubbles = useMemo(
     () =>
       Array.from({ length: 25 }).map((_, i) => ({
@@ -41,9 +63,70 @@ export default function AuthPage() {
     []
   );
 
+  /* ================= VALIDATION ================= */
+
+  const validate = () => {
+
+    if (!isLogin && name.trim().length < 3) {
+      return "Name must be at least 3 characters";
+    }
+
+    if (!email.trim()) {
+      return "Email is required";
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+      return "Enter a valid email address";
+    }
+
+    if (!password) {
+      return "Password is required";
+    }
+
+    if (!isLogin && passwordError) {
+      return "Please enter a strong password";
+    }
+
+    return "";
+  };
+
+  /* ================= PASSWORD ================= */
+
+  const handlePasswordChange = (val: string) => {
+
+    setPassword(val);
+
+    if (!val) {
+      setPasswordError("Password is required");
+      setPasswordStrength("");
+    }
+    else if (!strongPasswordRegex.test(val)) {
+      setPasswordError(
+        "8+ chars, Aa, 1 number & special character required"
+      );
+      setPasswordStrength("Weak");
+    }
+    else {
+      setPasswordError("");
+      setPasswordStrength("Strong");
+    }
+  };
+
   /* ================= SUBMIT ================= */
+
   const handleSubmit = async () => {
+
+    const msg = validate();
+
+    if (msg) {
+      setError(msg);
+      return;
+    }
+
     try {
+      setError("");
       setLoading(true);
 
       const url = isLogin
@@ -58,16 +141,17 @@ export default function AuthPage() {
 
       if (isLogin) {
         localStorage.setItem("token", res.data.token);
-        localStorage.setItem("userEmail", email); // ✅ ADD (FOR SIDEBAR)
+        localStorage.setItem("userEmail", email);
         router.push("/sidebar");
       } else {
         alert("Signup successful! Please login.");
         setIsLogin(true);
         setPassword("");
       }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      alert(error?.response?.data?.message || "Server error");
+    } catch (err: any) {
+      setError(err?.response?.data?.message || "Server error");
     } finally {
       setLoading(false);
     }
@@ -76,7 +160,7 @@ export default function AuthPage() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#020b0a] text-white flex items-center justify-center px-4">
 
-      {/* ===== BACKGROUND ===== */}
+      {/* BACKGROUND */}
       <div className="absolute inset-0 mesh-bg" />
 
       <div className="absolute inset-0 overflow-hidden">
@@ -95,7 +179,7 @@ export default function AuthPage() {
         ))}
       </div>
 
-      {/* ===== CONTENT ===== */}
+      {/* CONTENT */}
       <div className="relative z-10 w-full max-w-6xl flex flex-col md:grid md:grid-cols-2 items-center">
 
         {/* LEFT */}
@@ -125,8 +209,8 @@ export default function AuthPage() {
 
           <motion.p variants={fadeUp} className="mt-4 text-gray-300 max-w-md">
             {isLogin
-              ? "Access your dashboard, manage orders, inventory, and payments in one secure platform."
-              : "Join thousands of businesses using our platform to manage cars, pricing, and customers effortlessly."}
+              ? "Access your dashboard securely."
+              : "Join thousands of users today."}
           </motion.p>
 
           <motion.div variants={fadeUp} className="flex gap-8 mt-6 text-sm">
@@ -149,18 +233,23 @@ export default function AuthPage() {
               {isLogin ? "Login" : "Sign Up"}
             </h2>
 
-            <p className="text-center text-sm text-gray-300 mb-5">
-              {isLogin ? "Continue to dashboard" : "Create account in seconds"}
-            </p>
-
-            {/* SOCIAL */}
+            {/* SOCIAL LOGIN */}
             <div className="flex gap-3 mb-4">
-              <button className="flex-1 flex items-center justify-center gap-2 bg-white text-black py-2 rounded-lg text-sm font-medium">
+
+              <button
+                onClick={handleGoogleLogin}
+                className="flex-1 flex items-center justify-center gap-2 bg-white text-black py-2 rounded-lg text-sm font-medium"
+              >
                 <FcGoogle size={18} /> Google
               </button>
-              <button className="flex-1 flex items-center justify-center gap-2 bg-black text-white py-2 rounded-lg text-sm font-medium">
+
+              <button
+                onClick={handleGithubLogin}
+                className="flex-1 flex items-center justify-center gap-2 bg-black text-white py-2 rounded-lg text-sm font-medium"
+              >
                 <Github size={18} /> GitHub
               </button>
+
             </div>
 
             {/* DIVIDER */}
@@ -170,53 +259,91 @@ export default function AuthPage() {
               <div className="flex-1 h-px bg-white/20" />
             </div>
 
+            {/* ERROR */}
+            {error && (
+              <p className="text-red-400 text-sm text-center mb-3">
+                {error}
+              </p>
+            )}
+
+            {/* NAME */}
             {!isLogin && (
               <input
-                placeholder="Full Name"
+                placeholder="Full Name (min 3 chars)"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full mb-3 p-3 bg-white/10 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400/50"
               />
             )}
 
+            {/* EMAIL */}
             <input
-              placeholder="Email"
+              placeholder="Email (example@gmail.com)"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full mb-3 p-3 bg-white/10 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400/50"
             />
 
+            {/* PASSWORD */}
             <input
               type="password"
-              placeholder="Password"
+              placeholder="Password (8+ chars, Aa1@ required)"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full mb-4 p-3 bg-white/10 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400/50"
+              onChange={(e) => handlePasswordChange(e.target.value)}
+              className="w-full mb-1 p-3 bg-white/10 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400/50"
             />
 
+            {/* PASSWORD HINT */}
+            {!isLogin && passwordError && (
+              <p className="text-red-400 text-xs mb-2">
+                {passwordError}
+              </p>
+            )}
+
+            {!isLogin && passwordStrength && !passwordError && (
+              <p className="text-green-400 text-xs mb-2">
+                Password is {passwordStrength}
+              </p>
+            )}
+
+            {/* BUTTON */}
             <button
               disabled={loading}
               onClick={handleSubmit}
-              className="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/30"
+              className="w-full mt-2 py-3 rounded-xl font-semibold bg-gradient-to-r from-emerald-500 to-cyan-500 shadow-lg shadow-emerald-500/30"
             >
-              {loading ? "Please wait..." : isLogin ? "Login" : "Create Account"}
+              {loading
+                ? "Please wait..."
+                : isLogin
+                ? "Login"
+                : "Create Account"}
             </button>
 
+            {/* SWITCH */}
             <p className="text-sm text-center text-gray-300 mt-4">
               {isLogin ? "New user?" : "Already have account?"}{" "}
               <span
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError("");
+                  setPassword("");
+                  setPasswordError("");
+                  setPasswordStrength("");
+                }}
                 className="text-emerald-300 cursor-pointer hover:underline"
               >
                 {isLogin ? "Create account" : "Login"}
               </span>
             </p>
+
           </div>
         </motion.div>
       </div>
     </div>
   );
 }
+
+/* ================= STATS ================= */
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
