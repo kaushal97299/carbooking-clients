@@ -189,7 +189,7 @@ export default function AuthPage() {
           <motion.h1 variants={fadeUp} className="text-3xl md:text-5xl font-bold">
             {isLogin ? (
               <>
-                Welcome Back 👋 <br />
+                Welcome Back  <br />
                 <span className="text-emerald-300">
                   Manage your bookings smarter
                 </span>
