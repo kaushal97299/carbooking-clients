@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Github } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+
 import { motion } from "framer-motion";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -48,7 +49,8 @@ export default function AuthPage() {
     []
   );
 
-  /* ================= LOGIN / SIGNUP ================= */
+  /* ================= SUBMIT ================= */
+
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -63,23 +65,18 @@ export default function AuthPage() {
         ...(isLogin ? {} : { name }),
       });
 
-      // OTP required
-      if (res.data.otpRequired) {
+      // After signup → send OTP
+      if (!isLogin && res.data.otpStep) {
+        await axios.post(`${API}/api/send-otp`, { email });
         setShowOtp(true);
         return;
       }
 
       // Normal login
-      if (isLogin) {
+      if (isLogin && res.data.token) {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("userEmail", email);
         router.push("/sidebar");
-      }
-
-      // Signup → OTP
-      if (!isLogin) {
-        alert("OTP sent to your email");
-        setShowOtp(true);
       }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -91,6 +88,7 @@ export default function AuthPage() {
   };
 
   /* ================= VERIFY OTP ================= */
+
   const verifyOtp = async () => {
     try {
       setLoading(true);
@@ -101,6 +99,8 @@ export default function AuthPage() {
       });
 
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("userEmail", email);
+
       router.push("/sidebar");
 
     } catch {
@@ -110,26 +110,27 @@ export default function AuthPage() {
     }
   };
 
-  /* ================= FORGOT PASSWORD ================= */
+  /* ================= FORGOT ================= */
+
   const sendForgotOtp = async () => {
     try {
       setLoading(true);
 
-      await axios.post(`${API}/api/forgot-password`, {
-        email,
-      });
+      await axios.post(`${API}/api/forgot-password`, { email });
 
-      alert("OTP sent to email");
       setShowOtp(true);
 
+      alert("OTP sent to email");
+
     } catch {
-      alert("Error sending OTP");
+      alert("Failed to send OTP");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= RESET PASSWORD ================= */
+  /* ================= RESET ================= */
+
   const resetPassword = async () => {
     try {
       setLoading(true);
@@ -147,7 +148,7 @@ export default function AuthPage() {
       setIsLogin(true);
 
     } catch {
-      alert("Invalid OTP");
+      alert("Reset failed");
     } finally {
       setLoading(false);
     }
@@ -356,9 +357,6 @@ export default function AuthPage() {
     </div>
   );
 }
-
-/* ================= STATS ================= */
-
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div>
