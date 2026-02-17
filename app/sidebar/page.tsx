@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -8,11 +9,8 @@ import {
   Package,
   RotateCcw,
   IndianRupee,
-  Barcode,
   FileText,
   Layers,
-  Upload,
-  Image,
   ShieldCheck,
   CreditCard,
   Warehouse,
@@ -26,18 +24,14 @@ import {
 
 export default function Sidebar() {
   const [open, setOpen] = useState(false);
-  const [userEmail, setUserEmail] = useState<string>(""); // ✅ FIXED (null hata diya)
+  const [userEmail, setUserEmail] = useState<string>("");
+
   const router = useRouter();
 
   /* ================= GET USER EMAIL ================= */
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const email = localStorage.getItem("userEmail");
-      if (email) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setUserEmail(email);
-      }
-    }
+    const email = localStorage.getItem("userEmail");
+    if (email) setUserEmail(email);
   }, []);
 
   /* ================= LOGOUT ================= */
@@ -53,21 +47,30 @@ export default function Sidebar() {
       <aside
         className="hidden md:block fixed left-0 top-0 h-screen w-64
         bg-gradient-to-b from-[#0f172a] via-[#111827] to-[#020617]
-        text-gray-300 overflow-hidden shadow-2xl border-r border-white/10"
+        text-gray-300 shadow-2xl border-r border-white/10"
       >
         {/* LOGO */}
         <div className="px-5 py-3 text-lg font-semibold text-white border-b border-white/10">
           🚗 Car Booking
         </div>
 
-        {/* ===== USER EMAIL ===== */}
+        {/* USER */}
         <div className="px-5 py-3 border-b border-white/10">
-          <p className="text-[10px] uppercase text-gray-400">Logged in as</p>
+          <p className="text-[10px] uppercase text-gray-400">
+            Logged in as
+          </p>
+
           <div className="flex items-center gap-2 mt-1">
             <User size={14} className="text-emerald-400" />
-            <p className="text-sm text-white truncate">
+
+            {/* CLICKABLE EMAIL */}
+            <Link
+              href="/profile"
+              className="text-sm text-white truncate
+              hover:text-emerald-400 hover:underline transition"
+            >
               {userEmail || "Loading..."}
-            </p>
+            </Link>
           </div>
         </div>
 
@@ -76,10 +79,9 @@ export default function Sidebar() {
         </div>
 
         {/* MENU */}
-        <nav className="px-3 space-y-0.5 text-xs">
+        <nav className="px-3 space-y-1 text-xs">
           <SidebarLink href="/dashboard" icon={<Home size={14} />} label="Dashboard" />
           <SidebarLink href="/orders" icon={<Package size={14} />} label="Orders" />
-
           <SidebarLink href="/pricing" icon={<IndianRupee size={14} />} label="Pricing" />
           <SidebarLink href="/claims" icon={<FileText size={14} />} label="Claims" />
           <SidebarLink href="/inventory" icon={<Layers size={14} />} label="Inventory" />
@@ -93,7 +95,7 @@ export default function Sidebar() {
         <button
           onClick={handleLogout}
           className="absolute bottom-6 left-4 right-4 flex items-center gap-2
-          px-3 py-1.5 rounded-md text-xs text-red-400
+          px-3 py-2 rounded-md text-xs text-red-400
           hover:text-white hover:bg-red-500/20 transition"
         >
           <LogOut size={14} />
@@ -101,19 +103,20 @@ export default function Sidebar() {
         </button>
       </aside>
 
-      {/* ================= MOBILE BOTTOM NAV ================= */}
+      {/* ================= MOBILE NAV ================= */}
       <nav
-        className="fixed bottom-0 left-0 right-0 bg-[#020617] text-gray-300
-        flex justify-around py-2 md:hidden z-50 border-t border-white/10"
+        className="fixed bottom-0 left-0 right-0 bg-[#020617]
+        text-gray-300 flex justify-around py-2 md:hidden
+        border-t border-white/10 z-50"
       >
-        <BottomLink href="/sidebar" icon={<Home size={18} />} label="Home" />
+        <BottomLink href="/dashboard" icon={<Home size={18} />} label="Home" />
         <BottomLink href="/orders" icon={<Package size={18} />} label="Orders" />
         <BottomLink href="/returns" icon={<RotateCcw size={18} />} label="Returns" />
         <BottomLink href="/help" icon={<HelpCircle size={18} />} label="Help" />
 
         <button
           onClick={() => setOpen(true)}
-          className="flex flex-col items-center text-[10px] text-gray-300"
+          className="flex flex-col items-center text-[10px]"
         >
           <Menu size={20} />
           More
@@ -128,31 +131,37 @@ export default function Sidebar() {
         >
           <aside
             className="absolute bottom-0 left-0 right-0 h-[85%]
-            bg-[#020617] text-gray-300 rounded-t-2xl p-4"
+            bg-[#020617] rounded-t-2xl p-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-white text-sm font-semibold">Menu</h2>
+            <div className="flex justify-between mb-3">
+              <h2 className="text-white text-sm font-semibold">
+                Menu
+              </h2>
+
               <X onClick={() => setOpen(false)} size={18} />
             </div>
 
-            {/* USER EMAIL (MOBILE) */}
+            {/* USER (MOBILE) */}
             <div className="mb-4 px-3 py-2 border border-white/10 rounded-lg">
               <p className="text-xs text-gray-400">Logged in as</p>
-              <p className="text-sm text-white truncate">
+
+              <Link
+                href="/profile"
+                onClick={() => setOpen(false)}
+                className="text-sm text-white truncate
+                hover:text-emerald-400 transition"
+              >
                 {userEmail || "Loading..."}
-              </p>
+              </Link>
             </div>
 
-            <nav className="space-y-0.5 text-xs">
+            <nav className="space-y-1 text-xs">
               <SidebarLink href="/dashboard" icon={<Home size={14} />} label="Dashboard" />
               <SidebarLink href="/orders" icon={<Package size={14} />} label="Orders" />
-            
               <SidebarLink href="/pricing" icon={<IndianRupee size={14} />} label="Pricing" />
-          
               <SidebarLink href="/claims" icon={<FileText size={14} />} label="Claims" />
               <SidebarLink href="/inventory" icon={<Layers size={14} />} label="Inventory" />
-            
               <SidebarLink href="/quality" icon={<ShieldCheck size={14} />} label="Quality" />
               <SidebarLink href="/payments" icon={<CreditCard size={14} />} label="Payments" />
               <SidebarLink href="/warehouse" icon={<Warehouse size={14} />} label="Warehouse" />
@@ -160,8 +169,8 @@ export default function Sidebar() {
 
               <button
                 onClick={handleLogout}
-                className="mt-4 w-full flex items-center gap-2 px-3 py-1.5
-                text-xs text-red-400 hover:text-white hover:bg-red-500/20 rounded-md"
+                className="mt-4 w-full flex items-center gap-2 px-3 py-2
+                text-xs text-red-400 hover:bg-red-500/20 rounded"
               >
                 <LogOut size={14} />
                 Logout
@@ -188,12 +197,12 @@ function SidebarLink({
   return (
     <Link
       href={href}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-md
+      className="flex items-center gap-2 px-3 py-2 rounded-md
       text-gray-300 text-xs font-medium
       hover:bg-white/10 hover:text-white transition"
     >
       {icon}
-      <span className="truncate">{label}</span>
+      <span>{label}</span>
     </Link>
   );
 }
@@ -210,7 +219,7 @@ function BottomLink({
   return (
     <Link
       href={href}
-      className="flex flex-col items-center text-[10px] text-gray-300"
+      className="flex flex-col items-center text-[10px]"
     >
       {icon}
       {label}
