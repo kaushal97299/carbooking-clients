@@ -81,7 +81,7 @@ export default function Sidebar() {
         {/* MENU */}
         <nav className="px-3 space-y-1 text-xs">
           <SidebarLink href="/dashboard" icon={<Home size={14} />} label="Dashboard" />
-          <SidebarLink href="/orders" icon={<Package size={14} />} label="Orders" />
+          <SidebarLink href="/order" icon={<Package size={14} />} label="Orders" />
           <SidebarLink href="/pricing" icon={<IndianRupee size={14} />} label="Pricing" />
           <SidebarLink href="/claims" icon={<FileText size={14} />} label="Claims" />
           <SidebarLink href="/inventory" icon={<Layers size={14} />} label="Inventory" />
@@ -110,7 +110,7 @@ export default function Sidebar() {
         border-t border-white/10 z-50"
       >
         <BottomLink href="/dashboard" icon={<Home size={18} />} label="Home" />
-        <BottomLink href="/orders" icon={<Package size={18} />} label="Orders" />
+        <BottomLink href="/order" icon={<Package size={18} />} label="Orders" />
         <BottomLink href="/returns" icon={<RotateCcw size={18} />} label="Returns" />
         <BottomLink href="/help" icon={<HelpCircle size={18} />} label="Help" />
 
@@ -158,7 +158,7 @@ export default function Sidebar() {
 
             <nav className="space-y-1 text-xs">
               <SidebarLink href="/dashboard" icon={<Home size={14} />} label="Dashboard" />
-              <SidebarLink href="/orders" icon={<Package size={14} />} label="Orders" />
+              <SidebarLink href="/order" icon={<Package size={14} />} label="Orders" />
               <SidebarLink href="/pricing" icon={<IndianRupee size={14} />} label="Pricing" />
               <SidebarLink href="/claims" icon={<FileText size={14} />} label="Claims" />
               <SidebarLink href="/inventory" icon={<Layers size={14} />} label="Inventory" />
