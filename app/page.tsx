@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
@@ -45,11 +46,10 @@ const [forgotLoading, setForgotLoading] = useState(false);
  useEffect(() => {
   const initGoogle = () => {
 
-    // @ts-ignore
-    if (!window.google) return;
+    if (!(window as any).google) return;
 
-    // @ts-ignore
-    window.google.accounts.id.initialize({
+   
+    (window as any).google.accounts.id.initialize({
       client_id: String(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID),
       callback: handleGoogleResponse,
     });
@@ -58,7 +58,7 @@ const [forgotLoading, setForgotLoading] = useState(false);
 
     if (btn) {
   
-      window.google.accounts.id.renderButton(btn, {
+      (window as any).google.accounts.id.renderButton(btn, {
         theme: "outline",
         size: "large",
         width: 240,
