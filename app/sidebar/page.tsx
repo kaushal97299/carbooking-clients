@@ -28,13 +28,11 @@ export default function Sidebar() {
 
   const router = useRouter();
 
-  /* ================= GET USER EMAIL ================= */
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
     if (email) setUserEmail(email);
   }, []);
 
-  /* ================= LOGOUT ================= */
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userEmail");
@@ -43,10 +41,10 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* ================= DESKTOP SIDEBAR ================= */}
+      {/* DESKTOP SIDEBAR */}
       <aside
         className="hidden md:block fixed left-0 top-0 h-screen w-64
-        bg-gradient-to-b from-[#0f172a] via-[#111827] to-[#020617]
+        bg-gradient-to-b from-[#020b0a] via-[#041f1e] to-[#020b0a]
         text-gray-300 shadow-2xl border-r border-white/10"
       >
         {/* LOGO */}
@@ -61,13 +59,12 @@ export default function Sidebar() {
           </p>
 
           <div className="flex items-center gap-2 mt-1">
-            <User size={14} className="text-emerald-400" />
+            <User size={14} className="text-emerald-300" />
 
-            {/* CLICKABLE EMAIL */}
             <Link
               href="/profile"
               className="text-sm text-white truncate
-              hover:text-emerald-400 hover:underline transition"
+              hover:text-emerald-300 hover:underline transition"
             >
               {userEmail || "Loading..."}
             </Link>
@@ -103,9 +100,9 @@ export default function Sidebar() {
         </button>
       </aside>
 
-      {/* ================= MOBILE NAV ================= */}
+      {/* MOBILE NAV */}
       <nav
-        className="fixed bottom-0 left-0 right-0 bg-[#020617]
+        className="fixed bottom-0 left-0 right-0 bg-[#020b0a]
         text-gray-300 flex justify-around py-2 md:hidden
         border-t border-white/10 z-50"
       >
@@ -123,7 +120,7 @@ export default function Sidebar() {
         </button>
       </nav>
 
-      {/* ================= MOBILE DRAWER ================= */}
+      {/* MOBILE DRAWER */}
       {open && (
         <div
           className="fixed inset-0 bg-black/60 z-50 md:hidden"
@@ -131,7 +128,7 @@ export default function Sidebar() {
         >
           <aside
             className="absolute bottom-0 left-0 right-0 h-[85%]
-            bg-[#020617] rounded-t-2xl p-4"
+            bg-[#020b0a] rounded-t-2xl p-4 border-t border-white/10"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between mb-3">
@@ -142,7 +139,7 @@ export default function Sidebar() {
               <X onClick={() => setOpen(false)} size={18} />
             </div>
 
-            {/* USER (MOBILE) */}
+            {/* USER */}
             <div className="mb-4 px-3 py-2 border border-white/10 rounded-lg">
               <p className="text-xs text-gray-400">Logged in as</p>
 
@@ -150,7 +147,7 @@ export default function Sidebar() {
                 href="/profile"
                 onClick={() => setOpen(false)}
                 className="text-sm text-white truncate
-                hover:text-emerald-400 transition"
+                hover:text-emerald-300 transition"
               >
                 {userEmail || "Loading..."}
               </Link>
@@ -183,7 +180,7 @@ export default function Sidebar() {
   );
 }
 
-/* ================= COMPONENTS ================= */
+/* COMPONENTS */
 
 function SidebarLink({
   href,
@@ -199,7 +196,7 @@ function SidebarLink({
       href={href}
       className="flex items-center gap-2 px-3 py-2 rounded-md
       text-gray-300 text-xs font-medium
-      hover:bg-white/10 hover:text-white transition"
+      hover:bg-white/10 hover:text-emerald-300 transition"
     >
       {icon}
       <span>{label}</span>

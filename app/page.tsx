@@ -1,10 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { Github } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
 import { motion } from "framer-motion";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -24,7 +24,10 @@ const fadeUp = {
 };
 
 export default function AuthPage() {
-
+const [showForgot, setShowForgot] = useState(false);
+const [forgotEmail, setForgotEmail] = useState("");
+const [forgotMsg, setForgotMsg] = useState("");
+const [forgotLoading, setForgotLoading] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
 
   const [name, setName] = useState("");
@@ -39,11 +42,58 @@ export default function AuthPage() {
 
   const router = useRouter();
 
+ useEffect(() => {
+  const initGoogle = () => {
+
+    // @ts-ignore
+    if (!window.google) return;
+
+    // @ts-ignore
+    window.google.accounts.id.initialize({
+      client_id: String(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID),
+      callback: handleGoogleResponse,
+    });
+
+    const btn = document.getElementById("googleBtn");
+
+    if (btn) {
+  
+      window.google.accounts.id.renderButton(btn, {
+        theme: "outline",
+        size: "large",
+        width: 240,
+      });
+    }
+  };
+
+  setTimeout(initGoogle, 500);
+
+}, []);
   /* ================= SOCIAL LOGIN ================= */
 
-  const handleGoogleLogin = () => {
-    window.location.href = `${API}/auth/google`;
-  };
+
+  const handleGoogleResponse = async (response: any) => {
+
+  try {
+
+    const res = await axios.post(`${API}/api/google-log`, {
+      token: response.credential,
+    });
+
+    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("userEmail", res.data.user.email);
+
+    router.push("/sidebar");
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+
+    setError(err?.response?.data?.message || "Google login failed");
+
+  }
+
+};
+ 
 
   const handleGithubLogin = () => {
     window.location.href = `${API}/auth/github`;
@@ -113,6 +163,36 @@ export default function AuthPage() {
       setPasswordStrength("Strong");
     }
   };
+
+
+  const sendResetLink = async () => {
+
+  if (!forgotEmail) {
+    setForgotMsg("Email required");
+    return;
+  }
+
+  try {
+
+    setForgotLoading(true);
+
+    const res = await axios.post(`${API}/api/forgot-passwordd`,{
+      email: forgotEmail
+    });
+
+    setForgotMsg(res.data.message);
+
+  } catch (err: any) {
+
+    setForgotMsg(err?.response?.data?.message || "Failed");
+
+  } finally {
+
+    setForgotLoading(false);
+
+  }
+
+};
 
   /* ================= SUBMIT ================= */
 
@@ -236,12 +316,7 @@ export default function AuthPage() {
             {/* SOCIAL LOGIN */}
             <div className="flex gap-3 mb-4">
 
-              <button
-                onClick={handleGoogleLogin}
-                className="flex-1 flex items-center justify-center gap-2 bg-white text-black py-2 rounded-lg text-sm font-medium"
-              >
-                <FcGoogle size={18} /> Google
-              </button>
+             <div id="googleBtn" className="flex-1"></div>
 
               <button
                 onClick={handleGithubLogin}
@@ -292,6 +367,12 @@ export default function AuthPage() {
               onChange={(e) => handlePasswordChange(e.target.value)}
               className="w-full mb-1 p-3 bg-white/10 rounded-xl outline-none focus:ring-2 focus:ring-emerald-400/50"
             />
+             <p
+  onClick={() => setShowForgot(true)}
+  className="text-xs text-emerald-300 cursor-pointer hover:underline text-right mt-2"
+>
+  Forgot Password?
+</p>
 
             {/* PASSWORD HINT */}
             {!isLogin && passwordError && (
@@ -336,11 +417,57 @@ export default function AuthPage() {
               </span>
             </p>
 
-          </div>
-        </motion.div>
-      </div>
-    </div>
-  );
+
+</div>
+</motion.div>
+</div>
+
+
+{showForgot && (
+
+<div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+
+  <div className="bg-[#0b1413] p-6 rounded-xl w-[340px]">
+
+    <h2 className="text-lg font-bold mb-4 text-center">
+      Reset Password
+    </h2>
+
+    <input
+      placeholder="Enter your email"
+      value={forgotEmail}
+      onChange={(e)=>setForgotEmail(e.target.value)}
+      className="w-full p-3 rounded-lg bg-white/10 mb-3"
+    />
+
+    <button
+      onClick={sendResetLink}
+      className="w-full bg-emerald-500 py-2 rounded-lg"
+    >
+      {forgotLoading ? "Sending..." : "Send Reset Link"}
+    </button>
+
+    {forgotMsg && (
+      <p className="text-sm mt-3 text-center">
+        {forgotMsg}
+      </p>
+    )}
+
+    <button
+      onClick={()=>setShowForgot(false)}
+      className="text-xs text-gray-400 mt-4 block mx-auto"
+    >
+      Close
+    </button>
+
+  </div>
+
+</div>
+
+)}
+
+</div>
+);
 }
 
 /* ================= STATS ================= */

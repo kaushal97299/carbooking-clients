@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 "use client";
@@ -91,7 +92,13 @@ export default function ProfilePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+useEffect(() => {
 
+  if (user?.pincode && user.pincode.length === 6) {
+    handlePincode(user.pincode);
+  }
+
+}, [user?.pincode]);
   /* ================= CREATE PROFILE ================= */
 
   const createProfile = async () => {
@@ -147,40 +154,39 @@ export default function ProfilePage() {
 
   /* ================= PINCODE ================= */
 
-  const handlePincode = async (pin: string) => {
+const handlePincode = async (pin: string) => {
 
-    if (pin.length !== 6) return;
+  if (!/^\d{6}$/.test(pin)) return;
 
-    try {
+  try {
 
-      setPinLoading(true);
+    setPinLoading(true);
 
-      const res = await axios.get(
-        `${API}/api/pincode/${pin}`
-      );
+ const res = await axios.get(`${API}/api/pincodee${pin}`, {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+    setVillages(res.data.locations || []);
 
-      setVillages(res.data.locations || []);
+    setUser((p: any) => ({
+      ...p,
+      city: "",
+      district: res.data.district,
+      state: res.data.state,
+    }));
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setUser((p: any) => ({
-        ...p,
-        pincode: pin,
-        city: "",
-        district: res.data.district,
-        state: res.data.state,
-      }));
+  } catch (err) {
 
-    } catch {
+    console.log("PINCODE ERROR", err);
 
-      alert("Invalid Pincode ❌");
+  } finally {
 
-    } finally {
+    setPinLoading(false);
 
-      setPinLoading(false);
+  }
 
-    }
-  };
-
+};
 
   /* ================= SAVE ================= */
 
@@ -430,15 +436,13 @@ export default function ProfilePage() {
               <input
                 value={user.pincode || ""}
                 maxLength={6}
-                onChange={(e) => {
+               onChange={(e) => {
 
-                  const v = e.target.value.replace(/\D/g, "");
+  const v = e.target.value.replace(/\D/g, "");
 
-                  setUser({ ...user, pincode: v });
+  setUser({ ...user, pincode: v });
 
-                  handlePincode(v);
-
-                }}
+}}
                 className="input"
               />
 

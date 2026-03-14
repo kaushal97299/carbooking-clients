@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -5,17 +6,17 @@ import { Check, X, Download, FileText, Eye } from "lucide-react";
 
 export default function ClientBookingPage(){
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const [bookings,setBookings] = useState<any[]>([]);
 const [loading,setLoading] = useState(true);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const [selected,setSelected] = useState<any>(null);
 
 /* PAGINATION */
+
 const [page,setPage] = useState(1);
 const perPage = 8;
 
 /* FETCH */
+
 const fetchBookings = async()=>{
 
 try{
@@ -86,18 +87,24 @@ window.open(
 
 };
 
-/* PAGINATION LOGIC */
+/* PAGINATION */
 
 const start = (page-1)*perPage;
 const paginated = bookings.slice(start,start+perPage);
 const totalPages = Math.ceil(bookings.length/perPage);
+
+/* LOADING */
 
 if(loading){
 
 return(
 
 <div className="min-h-screen flex items-center justify-center text-white bg-gradient-to-br from-[#020b0a] via-[#041f1e] to-[#020b0a]">
+
+<div className="text-lg font-semibold animate-pulse">
 Loading bookings...
+</div>
+
 </div>
 
 );
@@ -112,7 +119,7 @@ return(
 
 {/* HEADER */}
 
-<div className="flex justify-between items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 py-5 shadow-xl mb-8">
+<div className="flex justify-between items-center bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl px-6 py-6 shadow-xl mb-8">
 
 <div>
 
@@ -120,7 +127,7 @@ return(
 Client Booking Panel
 </h1>
 
-<p className="text-sm text-gray-400">
+<p className="text-sm text-gray-400 mt-1">
 Manage all booking requests
 </p>
 
@@ -128,24 +135,25 @@ Manage all booking requests
 
 </div>
 
-
 {/* TABLE */}
 
 <div className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl shadow-xl overflow-hidden">
 
-<table className="w-full text-sm">
+<div className="overflow-x-auto">
 
-<thead className="bg-white/5 text-gray-300">
+<table className="w-full text-sm table-fixed">
+
+<thead className="bg-white/5 text-gray-300 text-xs uppercase tracking-wider">
 
 <tr>
 
-<th className="p-4 text-left">Car</th>
-<th>User</th>
-<th>Contact</th>
-<th>Dates</th>
-<th>Amount</th>
-<th>Status</th>
-<th>Actions</th>
+<th className="px-6 py-4 text-left w-[280px]">Car</th>
+<th className="px-6 py-4 text-left w-[160px]">Customer</th>
+<th className="px-6 py-4 text-left w-[220px]">Contact</th>
+<th className="px-6 py-4 text-left w-[200px]">Dates</th>
+<th className="px-6 py-4 text-left w-[120px]">Amount</th>
+<th className="px-6 py-4 text-left w-[120px]">Status</th>
+<th className="px-6 py-4 text-center w-[160px]">Actions</th>
 
 </tr>
 
@@ -153,40 +161,83 @@ Manage all booking requests
 
 <tbody>
 
-{paginated.map((b)=>(
+{paginated.map((b,i)=>(
 
 <tr
 key={b._id}
-className="border-t border-white/10 hover:bg-white/5 transition"
+className={`border-t border-white/10 hover:bg-white/5 transition ${
+i%2===0 ? "bg-white/[0.02]" : ""
+}`}
 >
 
-<td className="p-4 font-semibold">
-🚗 {b.name}
+{/* CAR */}
+
+<td className="px-6 py-5 align-top">
+
+<div className="flex gap-3 max-w-[260px]">
+
+<div className="text-lg mt-[2px]">🚗</div>
+
+<div className="flex flex-col">
+
+<span className="font-semibold text-white">
+{b.name}
+</span>
+
+<span className="text-xs text-gray-400 mt-1 break-all font-mono">
+Booking ID: {b._id}
+</span>
+
+</div>
+
+</div>
+
 </td>
 
-<td>
+{/* CUSTOMER */}
+
+<td className="px-6 py-5 font-medium text-white">
 {b.fullName}
 </td>
 
-<td className="text-xs text-gray-400">
+{/* CONTACT */}
 
-<p>{b.email}</p>
-<p>{b.phone}</p>
+<td className="px-6 py-5 text-sm">
+
+<div className="text-gray-300">{b.email}</div>
+
+<div className="text-gray-500 text-xs mt-1">
+{b.phone}
+</div>
 
 </td>
 
-<td className="text-xs">
-{b.pickupDate} → {b.dropDate}
+{/* DATES */}
+
+<td className="px-6 py-5 text-sm text-gray-300">
+
+<div>
+{new Date(b.pickupDate).toLocaleDateString()}
+</div>
+
+<div className="text-gray-500 text-xs mt-1">
+→ {new Date(b.dropDate).toLocaleDateString()}
+</div>
+
 </td>
 
-<td className="text-emerald-300 font-semibold">
+{/* AMOUNT */}
+
+<td className="px-6 py-5 font-semibold text-emerald-300 text-base">
 ₹{b.amount}
 </td>
 
-<td>
+{/* STATUS */}
+
+<td className="px-6 py-5">
 
 <span
-className={`text-xs px-2 py-1 rounded ${
+className={`px-3 py-1 text-xs rounded-full font-semibold capitalize ${
 b.bookingStatus==="accepted"
 ?"bg-green-500/20 text-green-300"
 :b.bookingStatus==="rejected"
@@ -201,61 +252,53 @@ b.bookingStatus==="accepted"
 
 </td>
 
-<td>
+{/* ACTIONS */}
 
-<div className="flex gap-3 items-center">
+<td className="px-6 py-5">
 
-{/* VIEW */}
+<div className="flex items-center justify-center gap-3 bg-white/5 px-3 py-2 rounded-xl">
 
 <Eye
 size={18}
-className="text-cyan-300 cursor-pointer hover:scale-110"
+className="text-cyan-300 hover:scale-110 cursor-pointer"
 onClick={()=>setSelected(b)}
 />
-
-{/* ACCEPT */}
 
 {b.bookingStatus==="pending" &&(
 
 <Check
 size={18}
-className="text-emerald-300 cursor-pointer hover:scale-110"
+className="text-emerald-300 hover:scale-110 cursor-pointer"
 onClick={()=>acceptBooking(b._id)}
 />
 
 )}
 
-{/* REJECT */}
-
 {b.bookingStatus==="pending" &&(
 
 <X
 size={18}
-className="text-red-400 cursor-pointer hover:scale-110"
+className="text-red-400 hover:scale-110 cursor-pointer"
 onClick={()=>rejectBooking(b._id)}
 />
 
 )}
 
-{/* CLIENT INVOICE */}
-
 {b.bookingStatus==="accepted" && b.clientInvoiceUrl &&(
 
 <FileText
 size={18}
-className="text-cyan-300 cursor-pointer hover:scale-110"
+className="text-cyan-300 hover:scale-110 cursor-pointer"
 onClick={()=>downloadClientInvoice(b._id)}
 />
 
 )}
 
-{/* USER INVOICE */}
-
 {b.bookingStatus==="accepted" && b.invoiceUrl &&(
 
 <Download
 size={18}
-className="text-emerald-300 cursor-pointer hover:scale-110"
+className="text-emerald-300 hover:scale-110 cursor-pointer"
 onClick={()=>downloadUserInvoice(b._id)}
 />
 
@@ -275,20 +318,21 @@ onClick={()=>downloadUserInvoice(b._id)}
 
 </div>
 
+</div>
 
 {/* PAGINATION */}
 
-<div className="flex justify-center gap-2 mt-6">
+<div className="flex justify-center gap-3 mt-8">
 
 {Array.from({length:totalPages}).map((_,i)=>(
 
 <button
 key={i}
 onClick={()=>setPage(i+1)}
-className={`px-4 py-1 rounded ${
+className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
 page===i+1
-?"bg-emerald-500 text-black"
-:"bg-white/5 text-gray-300"
+?"bg-emerald-500 text-black shadow-lg"
+:"bg-white/5 text-gray-300 hover:bg-white/10"
 }`}
 >
 
@@ -300,39 +344,42 @@ page===i+1
 
 </div>
 
-
-{/* VIEW MODAL */}
+{/* MODAL */}
 
 {selected &&(
 
-<div className="fixed inset-0 bg-black/60 flex items-center justify-center">
+<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
 
-<div className="bg-[#020b0a] border border-white/10 rounded-2xl p-6 w-[450px]">
+<div className="bg-[#020b0a] border border-white/10 rounded-2xl p-7 w-[450px] shadow-2xl">
 
-<h2 className="text-xl font-bold text-emerald-300 mb-4">
+<h2 className="text-xl font-bold text-emerald-300 mb-5">
 Booking Details
 </h2>
+
+<div className="space-y-2 text-sm">
 
 <p><b>Car:</b> {selected.name}</p>
 <p><b>Name:</b> {selected.fullName}</p>
 <p><b>Email:</b> {selected.email}</p>
 <p><b>Phone:</b> {selected.phone}</p>
 
-<p className="mt-2">
-<b>Dates:</b> {selected.pickupDate} → {selected.dropDate}
+<p>
+<b>Dates:</b> {new Date(selected.pickupDate).toLocaleDateString()} → {new Date(selected.dropDate).toLocaleDateString()}
 </p>
 
-<p className="mt-2">
+<p>
 <b>Amount:</b> ₹{selected.amount}
 </p>
 
-<p className="text-xs text-gray-400 mt-2">
+<p className="text-xs text-gray-400">
 Payment ID: {selected.paymentIntentId}
 </p>
 
+</div>
+
 <button
 onClick={()=>setSelected(null)}
-className="mt-5 bg-emerald-500 text-black px-4 py-2 rounded"
+className="mt-6 bg-emerald-500 text-black px-5 py-2 rounded-lg font-medium hover:bg-emerald-400 transition"
 >
 
 Close
@@ -350,5 +397,4 @@ Close
 </div>
 
 );
-
 }
