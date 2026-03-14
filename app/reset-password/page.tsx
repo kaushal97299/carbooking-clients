@@ -18,6 +18,11 @@ export default function ResetPasswordPage() {
 
   const resetPassword = async () => {
 
+    if (!token) {
+      setMsg("Invalid reset link");
+      return;
+    }
+
     if (!password) {
       setMsg("Password required");
       return;
@@ -25,7 +30,7 @@ export default function ResetPasswordPage() {
 
     try {
 
-      const res = await axios.post(`${API}/api/reset-passwordd`, {
+      const res = await axios.post(`${API}/api/reset-password`, {
         token,
         password
       });
