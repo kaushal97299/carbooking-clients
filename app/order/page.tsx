@@ -20,9 +20,14 @@ const perPage = 8;
 const fetchBookings = async()=>{
 
 try{
-
+const token = localStorage.getItem("token");
 const res = await fetch(
-`${process.env.NEXT_PUBLIC_API_URL}/api/booking/all`
+`${process.env.NEXT_PUBLIC_API_URL}/api/booking/clientbooking`,
+{
+headers: {
+Authorization: `Bearer ${token}`
+}
+}
 );
 
 const data = await res.json();
@@ -115,7 +120,7 @@ return(
 
 <div className="min-h-screen bg-gradient-to-br from-[#020b0a] via-[#041f1e] to-[#020b0a] text-white px-6 py-8">
 
-<div className="max-w-7xl mx-auto">
+<div className="max-w-[1050px] mx-auto">
 
 {/* HEADER */}
 
@@ -123,7 +128,7 @@ return(
 
 <div>
 
-<h1 className="text-3xl font-bold text-emerald-300">
+<h1 className="text-2xl font-bold text-emerald-300">
 Client Booking Panel
 </h1>
 
@@ -141,19 +146,18 @@ Manage all booking requests
 
 <div className="overflow-x-auto">
 
-<table className="w-full text-sm table-fixed">
-
-<thead className="bg-white/5 text-gray-300 text-xs uppercase tracking-wider">
+<table className="w-full text-[13px]">
+<thead className="bg-white/5 text-gray-300 text-[11px] uppercase tracking-wider sticky top-0 backdrop-blur-xl">
 
 <tr>
 
-<th className="px-6 py-4 text-left w-[280px]">Car</th>
-<th className="px-6 py-4 text-left w-[160px]">Customer</th>
-<th className="px-6 py-4 text-left w-[220px]">Contact</th>
-<th className="px-6 py-4 text-left w-[200px]">Dates</th>
-<th className="px-6 py-4 text-left w-[120px]">Amount</th>
-<th className="px-6 py-4 text-left w-[120px]">Status</th>
-<th className="px-6 py-4 text-center w-[160px]">Actions</th>
+<th className="px-4 py-3 text-left w-[220px]">Car</th>
+<th className="px-4 py-3 text-left w-[140px]">Customer</th>
+<th className="px-4 py-3 text-left w-[180px]">Contact</th>
+<th className="px-4 py-3 text-left w-[160px]">Dates</th>
+<th className="px-4 py-3 text-left w-[100px]">Amount</th>
+<th className="px-4 py-3 text-left w-[100px]">Status</th>
+<th className="px-4 py-3 text-center w-[130px]">Actions</th>
 
 </tr>
 
@@ -172,11 +176,11 @@ i%2===0 ? "bg-white/[0.02]" : ""
 
 {/* CAR */}
 
-<td className="px-6 py-5 align-top">
+<td className="px-4 py-3 align-top">
 
-<div className="flex gap-3 max-w-[260px]">
+<div className="flex gap-2 max-w-[170px]">
 
-<div className="text-lg mt-[2px]">🚗</div>
+<div className="text-sm mt-[3px]">🚗</div>
 
 <div className="flex flex-col">
 
@@ -196,13 +200,13 @@ Booking ID: {b._id}
 
 {/* CUSTOMER */}
 
-<td className="px-6 py-5 font-medium text-white">
+<td className="px-4 py-3 font-medium text-white">
 {b.fullName}
 </td>
 
 {/* CONTACT */}
 
-<td className="px-6 py-5 text-sm">
+<td className="px-4 py-3 text-sm">
 
 <div className="text-gray-300">{b.email}</div>
 
@@ -214,7 +218,7 @@ Booking ID: {b._id}
 
 {/* DATES */}
 
-<td className="px-6 py-5 text-sm text-gray-300">
+<td className="px-4 py-3 text-sm text-gray-300">
 
 <div>
 {new Date(b.pickupDate).toLocaleDateString()}
@@ -234,10 +238,10 @@ Booking ID: {b._id}
 
 {/* STATUS */}
 
-<td className="px-6 py-5">
+<td className="px-4 py-3">
 
 <span
-className={`px-3 py-1 text-xs rounded-full font-semibold capitalize ${
+className={`px-2 py-[3px] text-[11px] rounded-full font-semibold capitalize ${
 b.bookingStatus==="accepted"
 ?"bg-green-500/20 text-green-300"
 :b.bookingStatus==="rejected"
@@ -254,12 +258,12 @@ b.bookingStatus==="accepted"
 
 {/* ACTIONS */}
 
-<td className="px-6 py-5">
+<td className="px-5 py-5">
 
-<div className="flex items-center justify-center gap-3 bg-white/5 px-3 py-2 rounded-xl">
+<div className="flex items-center justify-center gap-2 bg-white/5 px-2 py-1.5 rounded-lg">
 
 <Eye
-size={18}
+size={16}
 className="text-cyan-300 hover:scale-110 cursor-pointer"
 onClick={()=>setSelected(b)}
 />
@@ -267,7 +271,7 @@ onClick={()=>setSelected(b)}
 {b.bookingStatus==="pending" &&(
 
 <Check
-size={18}
+size={16}
 className="text-emerald-300 hover:scale-110 cursor-pointer"
 onClick={()=>acceptBooking(b._id)}
 />
@@ -277,7 +281,7 @@ onClick={()=>acceptBooking(b._id)}
 {b.bookingStatus==="pending" &&(
 
 <X
-size={18}
+size={16}
 className="text-red-400 hover:scale-110 cursor-pointer"
 onClick={()=>rejectBooking(b._id)}
 />
@@ -287,7 +291,7 @@ onClick={()=>rejectBooking(b._id)}
 {b.bookingStatus==="accepted" && b.clientInvoiceUrl &&(
 
 <FileText
-size={18}
+size={16}
 className="text-cyan-300 hover:scale-110 cursor-pointer"
 onClick={()=>downloadClientInvoice(b._id)}
 />
@@ -297,7 +301,7 @@ onClick={()=>downloadClientInvoice(b._id)}
 {b.bookingStatus==="accepted" && b.invoiceUrl &&(
 
 <Download
-size={18}
+size={16}
 className="text-emerald-300 hover:scale-110 cursor-pointer"
 onClick={()=>downloadUserInvoice(b._id)}
 />

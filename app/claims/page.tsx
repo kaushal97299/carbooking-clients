@@ -264,7 +264,7 @@ Claim Details
 
 <img
 key={i}
-src={`${process.env.NEXT_PUBLIC_API_URL}${img}`}
+src={img}
 className="w-20 h-20 object-cover rounded-lg border border-white/10"
 />
 

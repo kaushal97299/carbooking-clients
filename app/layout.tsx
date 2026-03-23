@@ -4,7 +4,7 @@ import "./globals.css";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Sidebar from "./sidebar/page";
-import Script from "next/script";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 export default function RootLayout({
   children,
@@ -39,14 +39,9 @@ export default function RootLayout({
   }, [pathname]);
 
   return (
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
     <html lang="en">
       <body className="min-h-screen w-full overflow-x-hidden bg-black">
-
-        {/* GOOGLE LOGIN SCRIPT */}
-        <Script
-          src="https://accounts.google.com/gsi/client"
-          strategy="beforeInteractive"
-        />
 
         {isAuthPage ? (
           /* LOGIN + RESET PASSWORD PAGES */
@@ -63,5 +58,6 @@ export default function RootLayout({
 
       </body>
     </html>
+    </GoogleOAuthProvider>
   );
 }

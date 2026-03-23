@@ -105,7 +105,7 @@ export default function InventoryPage() {
             {/* IMAGE */}
             {c.image && (
               <img
-                src={`${API}${c.image}`}
+                src={c.image}
                 className="w-full h-36 object-cover rounded-2xl mb-4"
               />
             )}

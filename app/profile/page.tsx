@@ -136,19 +136,23 @@ useEffect(() => {
     );
 
     const data = res.data;
-
+ console.log("FROM BACKEND:", data.dateOfBirth);
     /* ✅ DOB FORMAT FIX */
-    if (data.dateOfBirth) {
-      data.dob = new Date(data.dateOfBirth)
-        .toISOString()
-        .split("T")[0];
-    }
+   if (data.dateOfBirth) {
+  data.dob = new Date(data.dateOfBirth)
+    .toISOString()
+    .split("T")[0];
+}
+  console.log("AFTER CONVERT:", data.dob);
 
-    setUser(data);
+    setUser({
+  ...data,
+  dob: data.dob || ""
+});
 
-    setAvatarPreview(
-      data.avatar ? `${API}${data.avatar}` : ""
-    );
+   setAvatarPreview(
+  data.avatar || ""
+);
   };
 
 
@@ -255,6 +259,7 @@ const handlePincode = async (pin: string) => {
       alert("Profile Updated ✅");
 
       loadProfile();
+      
 
     } catch (err) {
 
@@ -284,138 +289,78 @@ const handlePincode = async (pin: string) => {
   /* ================= UI ================= */
 
   return (
-
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950 p-4 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-emerald-950 to-slate-950 p-3 sm:p-5 lg:p-8 text-white">
 
       <motion.div
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6"
+        className="max-w-5xl mx-auto space-y-5"
       >
 
-
-        {/* LEFT */}
-
-        <div className="bg-white/10 rounded-3xl p-6 text-center">
-
+        {/* ── TOP CARD: avatar + name ── */}
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-5">
 
           {/* AVATAR */}
-
-          <div className="relative w-36 h-36 mx-auto mb-4">
-
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0">
             <img
-              src={
-                avatarPreview ||
-                "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-              }
+              src={avatarPreview || "https://cdn-icons-png.flaticon.com/512/847/847969.png"}
               className="w-full h-full rounded-full object-cover border-4 border-emerald-400"
             />
-
-
-            <label className="absolute bottom-1 right-1 bg-emerald-500 text-black p-2 rounded-full cursor-pointer">
-
-              <Camera size={16} />
-
+            <label className="absolute bottom-0 right-0 bg-emerald-500 text-black p-1.5 rounded-full cursor-pointer">
+              <Camera size={14} />
               <input
-                type="file"
-                hidden
-                accept="image/*"
+                type="file" hidden accept="image/*"
                 onChange={(e) => {
-
                   const f = e.target.files?.[0];
-
-                  if (f) {
-                    setAvatarFile(f);
-                    setAvatarPreview(
-                      URL.createObjectURL(f)
-                    );
-                  }
-
+                  if (f) { setAvatarFile(f); setAvatarPreview(URL.createObjectURL(f)); }
                 }}
               />
             </label>
-
           </div>
 
-
-          <h2 className="text-xl font-bold flex justify-center gap-2 items-center">
-            <User size={18} />
-            {user.name}
-          </h2>
-
-          <p className="text-sm text-gray-400 mt-1">
-            {user.email}
-          </p>
-
-          <p className="mt-3 text-xs text-emerald-400">
-            Account: {user.status}
-          </p>
+          {/* INFO */}
+          <div className="text-center sm:text-left">
+            <h2 className="text-lg sm:text-xl font-bold flex items-center justify-center sm:justify-start gap-2">
+              <User size={18} /> {user.name}
+            </h2>
+            <p className="text-sm text-gray-400 mt-0.5">{user.email}</p>
+            <span className="inline-block mt-2 text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-medium">
+              Account: {user.status}
+            </span>
+          </div>
 
         </div>
 
 
-        {/* RIGHT */}
+        {/* ── PERSONAL INFORMATION ── */}
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6">
 
-        <div className="md:col-span-2 bg-white/10 rounded-3xl p-6">
+          <h3 className="text-base sm:text-lg font-semibold mb-4">Personal Information</h3>
 
-
-          {/* PERSONAL */}
-
-          <h3 className="text-xl font-semibold mb-5">
-            Personal Information
-          </h3>
-
-
-          <div className="grid md:grid-cols-2 gap-4">
-
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
             <Input label="Full Name" value={user.name}
-              onChange={(v: string) =>
-                setUser({ ...user, name: v })
-              }
-            />
+              onChange={(v: string) => setUser({ ...user, name: v })} />
 
             <LockedInput label="Email" value={user.email} />
 
-
             <Input label="Phone" icon={<Phone size={14} />}
               value={user.phone || ""}
-              onChange={(v: string) =>
-                setUser({ ...user, phone: v })
-              }
-            />
-
+              onChange={(v: string) => setUser({ ...user, phone: v })} />
 
             <Input label="Address" icon={<MapPin size={14} />}
               value={user.address || ""}
-              onChange={(v: string) =>
-                setUser({ ...user, address: v })
-              }
-            />
+              onChange={(v: string) => setUser({ ...user, address: v })} />
 
-
-            {/* DOB */}
-
-            <Input
-              label="Date of Birth"
-              value={user.dob || ""}
-              onChange={(v: string) =>
-                setUser({ ...user, dob: v })
-              }
-            />
-
+            <Input label="Date of Birth" value={user.dob || ""}
+              onChange={(v: string) => setUser({ ...user, dob: v })} />
 
             {/* GENDER */}
-
             <div>
-
               <label className="label">Gender</label>
-
               <select
                 value={user.gender || ""}
-                onChange={(e) =>
-                  setUser({ ...user, gender: e.target.value })
-                }
+                onChange={(e) => setUser({ ...user, gender: e.target.value })}
                 className="input"
               >
                 <option value="">Select</option>
@@ -423,169 +368,92 @@ const handlePincode = async (pin: string) => {
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
-
             </div>
 
-
             {/* PINCODE */}
-
             <div>
-
               <label className="label">Pincode</label>
-
               <input
                 value={user.pincode || ""}
                 maxLength={6}
-               onChange={(e) => {
-
-  const v = e.target.value.replace(/\D/g, "");
-
-  setUser({ ...user, pincode: v });
-
-}}
+                onChange={(e) => {
+                  const v = e.target.value.replace(/\D/g, "");
+                  setUser({ ...user, pincode: v });
+                }}
                 className="input"
+                placeholder="6-digit pincode"
               />
-
-              {pinLoading && (
-                <p className="text-xs text-emerald-400 mt-1">
-                  Fetching...
-                </p>
-              )}
-
+              {pinLoading && <p className="text-xs text-emerald-400 mt-1">Fetching location...</p>}
             </div>
-
 
             {/* CITY */}
-
             <div>
-
               <label className="label">City / Village</label>
-
               <select
                 value={user.city || ""}
-                onChange={(e) =>
-                  setUser({ ...user, city: e.target.value })
-                }
+                onChange={(e) => setUser({ ...user, city: e.target.value })}
                 className="input"
               >
-
                 <option value="">Select</option>
-
                 {villages.map((v, i) => (
-                  <option key={i} value={v}>
-                    {v}
-                  </option>
+                  <option key={i} value={v}>{v}</option>
                 ))}
-
               </select>
-
             </div>
-
 
             <Input label="District" value={user.district || ""}
-              onChange={(v: string) =>
-                setUser({ ...user, district: v })
-              }
-            />
+              onChange={(v: string) => setUser({ ...user, district: v })} />
 
             <Input label="State" value={user.state || ""}
-              onChange={(v: string) =>
-                setUser({ ...user, state: v })
-              }
+              onChange={(v: string) => setUser({ ...user, state: v })} />
+
+          </div>
+        </div>
+
+
+        {/* ── KYC ── */}
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-6">
+
+          <h4 className="font-semibold flex items-center gap-2 mb-4">
+            <ShieldCheck size={18} className="text-emerald-400" />
+            KYC Verification
+          </h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+
+            <KycBox title="Aadhaar"
+              doc={user.documents?.aadhaar}
+              onNum={(v: string) => setUser({ ...user, documents: { ...user.documents, aadhaar: { ...user.documents?.aadhaar, number: v } } })}
+              onFile={setAadhaarFile}
+            />
+
+            <KycBox title="PAN"
+              doc={user.documents?.pan}
+              onNum={(v: string) => setUser({ ...user, documents: { ...user.documents, pan: { ...user.documents?.pan, number: v } } })}
+              onFile={setPanFile}
+            />
+
+            <KycBox title="Driving License"
+              doc={user.documents?.drivingLicense}
+              onNum={(v: string) => setUser({ ...user, documents: { ...user.documents, drivingLicense: { ...user.documents?.drivingLicense, number: v } } })}
+              onFile={setDlFile}
             />
 
           </div>
-
-
-          {/* KYC */}
-
-          <div className="mt-10 pt-6 border-t border-white/10">
-
-            <h4 className="font-semibold flex items-center gap-2 mb-5">
-              <ShieldCheck size={18} className="text-emerald-400" />
-              KYC Verification
-            </h4>
-
-
-            <div className="grid md:grid-cols-2 gap-5">
-
-
-              <KycBox title="Aadhaar"
-                doc={user.documents?.aadhaar}
-                onNum={(v: string) =>
-                  setUser({
-                    ...user,
-                    documents: {
-                      ...user.documents,
-                      aadhaar: {
-                        ...user.documents?.aadhaar,
-                        number: v,
-                      },
-                    },
-                  })
-                }
-                onFile={setAadhaarFile}
-              />
-
-
-              <KycBox title="PAN"
-                doc={user.documents?.pan}
-                onNum={(v: string) =>
-                  setUser({
-                    ...user,
-                    documents: {
-                      ...user.documents,
-                      pan: {
-                        ...user.documents?.pan,
-                        number: v,
-                      },
-                    },
-                  })
-                }
-                onFile={setPanFile}
-              />
-
-
-              <KycBox title="Driving License"
-                doc={user.documents?.drivingLicense}
-                onNum={(v: string) =>
-                  setUser({
-                    ...user,
-                    documents: {
-                      ...user.documents,
-                      drivingLicense: {
-                        ...user.documents?.drivingLicense,
-                        number: v,
-                      },
-                    },
-                  })
-                }
-                onFile={setDlFile}
-              />
-
-            </div>
-
-          </div>
-
-
-          {/* SAVE */}
-
-          <button
-            onClick={saveProfile}
-            disabled={loading}
-            className="mt-8 w-full py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl font-bold text-black"
-          >
-
-            <Save size={18} className="inline mr-1" />
-
-            {loading ? "Saving..." : "Save Changes"}
-
-          </button>
-
         </div>
 
-      </motion.div>
 
+        {/* ── SAVE ── */}
+        <button
+          onClick={saveProfile}
+          disabled={loading}
+          className="w-full py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl font-bold text-black text-sm sm:text-base disabled:opacity-60"
+        >
+          <Save size={16} className="inline mr-1.5" />
+          {loading ? "Saving..." : "Save Changes"}
+        </button>
+
+      </motion.div>
     </div>
   );
 }
@@ -712,10 +580,10 @@ function KycBox({
       {preview && (
 
        
-        <img
-          src={`${API}${preview}`}
-          className="w-full h-36 object-cover rounded border"
-        />
+       <img
+  src={preview}
+  className="w-full h-36 object-cover rounded border"
+/>
 
       )}
 

@@ -13,8 +13,12 @@ const [page,setPage] = useState(1);
 const perPage = 8;
 
 useEffect(()=>{
-
-fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/booking/all`)
+const token = localStorage.getItem("token");
+fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/booking/clientbooking`, {
+  headers: {
+    Authorization: `Bearer ${token}`
+  }
+})
 .then(res=>res.json())
 .then(data=>{
 
