@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { isTokenExpired, logoutUser } from "../utils/Cauth";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -28,16 +29,40 @@ export default function Sidebar() {
 
   const router = useRouter();
 
+/* ================= TOKEN EXPIRY WATCHER ================= */
+
+useEffect(() => {
+
+  const checkToken = () => {
+
+    const token = localStorage.getItem("token");
+
+    if (!token) return;
+
+    if (isTokenExpired(token)) {
+      logoutUser();
+    }
+
+  };
+
+  // run once immediately
+  checkToken();
+
+  // run every 30 seconds
+  const interval = setInterval(checkToken, 30000);
+
+  return () => clearInterval(interval);
+
+}, []);
+
   useEffect(() => {
     const email = localStorage.getItem("userEmail");
     if (email) setUserEmail(email);
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userEmail");
-    router.replace("/");
-  };
+const handleLogout = () => {
+  logoutUser();
+};
 
   return (
     <>

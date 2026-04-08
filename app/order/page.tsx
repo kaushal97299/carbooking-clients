@@ -7,6 +7,8 @@ import { Check, X, Download, FileText, Eye } from "lucide-react";
 export default function ClientBookingPage(){
 
 const [bookings,setBookings] = useState<any[]>([]);
+const [cancelledBookings,setCancelledBookings] = useState<any[]>([]);
+const [tab,setTab] = useState("active");
 const [loading,setLoading] = useState(true);
 const [selected,setSelected] = useState<any>(null);
 
@@ -46,8 +48,39 @@ setLoading(false);
 
 };
 
+const fetchCancelledBookings = async()=>{
+
+try{
+
+const token = localStorage.getItem("token");
+
+const res = await fetch(
+`${process.env.NEXT_PUBLIC_API_URL}/api/booking/clientbooking/cancelled`,
+{
+headers:{
+Authorization:`Bearer ${token}`
+}
+}
+);
+
+const data = await res.json();
+
+setCancelledBookings(data);
+
+}catch(err){
+
+console.log("Fetch cancelled booking error",err);
+
+}
+
+};
+
 useEffect(()=>{
+
 fetchBookings();
+
+fetchCancelledBookings();
+
 },[]);
 
 /* ACTIONS */
@@ -60,6 +93,7 @@ await fetch(
 );
 
 fetchBookings();
+fetchCancelledBookings();
 
 };
 
@@ -71,6 +105,7 @@ await fetch(
 );
 
 fetchBookings();
+fetchCancelledBookings();
 
 };
 
@@ -95,8 +130,14 @@ window.open(
 /* PAGINATION */
 
 const start = (page-1)*perPage;
-const paginated = bookings.slice(start,start+perPage);
-const totalPages = Math.ceil(bookings.length/perPage);
+const currentList =
+tab==="active"
+? bookings
+: cancelledBookings;
+
+const paginated = currentList.slice(start,start+perPage);
+
+const totalPages = Math.ceil(currentList.length/perPage);
 
 /* LOADING */
 
@@ -137,6 +178,32 @@ Manage all booking requests
 </p>
 
 </div>
+
+</div>
+
+<div className="flex gap-4 mb-6">
+
+<button
+onClick={()=>setTab("active")}
+className={`px-4 py-2 rounded ${
+tab==="active"
+?"bg-emerald-500 text-black"
+:"bg-white/10 text-gray-300"
+}`}
+>
+Active Bookings
+</button>
+
+<button
+onClick={()=>setTab("cancelled")}
+className={`px-4 py-2 rounded ${
+tab==="cancelled"
+?"bg-gray-600 text-white"
+:"bg-white/10 text-gray-300"
+}`}
+>
+Cancelled Bookings
+</button>
 
 </div>
 
@@ -246,6 +313,8 @@ b.bookingStatus==="accepted"
 ?"bg-green-500/20 text-green-300"
 :b.bookingStatus==="rejected"
 ?"bg-red-500/20 text-red-300"
+:b.bookingStatus==="cancelled"
+?"bg-gray-500/20 text-gray-300"
 :"bg-yellow-500/20 text-yellow-300"
 }`}
 >
@@ -267,7 +336,15 @@ size={16}
 className="text-cyan-300 hover:scale-110 cursor-pointer"
 onClick={()=>setSelected(b)}
 />
+{b.bookingStatus==="pending" && b.clientApprovalExpiresAt && (
 
+<span className="text-[10px] text-yellow-300 block mb-1">
+
+Approval expires soon
+
+</span>
+
+)}
 {b.bookingStatus==="pending" &&(
 
 <Check
@@ -374,6 +451,24 @@ Booking Details
 <p>
 <b>Amount:</b> ₹{selected.amount}
 </p>
+{selected.bookingStatus==="cancelled" && selected.cancelReason && (
+
+<p className="text-red-400 text-sm mt-2">
+
+Cancel Reason: {selected.cancelReason}
+
+</p>
+
+)}
+{selected.autoCancelled && (
+
+<p className="text-gray-400 text-xs mt-1">
+
+Auto cancelled by system
+
+</p>
+
+)}
 
 <p className="text-xs text-gray-400">
 Payment ID: {selected.paymentIntentId}

@@ -2,8 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { isTokenExpired, logoutUser } from "../app/utils/Cauth";
 import axios from "axios";
 import { Github } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
@@ -43,6 +44,20 @@ const [forgotLoading, setForgotLoading] = useState(false);
   const [error, setError] = useState("");
 
   const router = useRouter();
+  
+useEffect(() => {
+
+  const token = localStorage.getItem("token");
+
+  if (!token) return;
+
+  if (isTokenExpired(token)) {
+    logoutUser();
+  } else {
+    router.push("/dashboard");
+  }
+
+}, []);
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
